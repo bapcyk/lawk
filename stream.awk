@@ -22,26 +22,30 @@ function _lp_extract_pat(pat) {
 
 # special case of term - block code
 function _lp_extract_bcode() {
+    #print " ..", _LP0, _lp_bcodenl
     if (0 == _lp_bcodenl) {
         if (!$0) _lp_bcodenl = 1
     } else {
-        indent = _lp_extract_pat("^([ \t]+).*")
+        indent = _lp_extract_pat("^[ \t]+")
         if (1 == _lp_bcodenl) {
             if (indent) {
                 _lp_bcodeindent = indent
             } else {
+            #print " .. kill-1", $0, _lp_bcodenl
                 _lp_bcodenl = 0
                 return
             }
         }
         if (indent >= _lp_bcodeindent || !$0) {
             r = "bcode " $0
+            _lp_bcodenl++ # line number in bcode
             return r
         } else if ($0) {
+            #print " .. ", $0, "kill-2", _lp_bcodenl
+            #printf(" .. kill-2 %s '%s'->'%s' %d\n", $0, _lp_bcodeindent, indent, _lp_bcodenl)
             _lp_bcodenl = 0
             return
         }
-        _lp_bcodenl++ # line number in bcode
     }
 }
 
@@ -51,7 +55,7 @@ function _lp_extract_icodep_1() {
     def = _lp_extract_term("def")
     code = _lp_extract_term("icode")
     if (def && code) {
-        r = "icode+ " def " " code
+        r = def "\n" code
     } else {
         r = ""
         _LP0 = lp0
@@ -72,27 +76,11 @@ function _lp_extract_icodep() {
     }
 }
 
-# special case - extract def and bcode
-function _lp_extract_bcodep() {
-    lp0 = _LP0
-    def = _lp_extract_term("def")
-    code = _lp_extract_term("bcode")
-    if (def && code) {
-        r = "bcode+ " def " " code
-    } else {
-        r = ""
-        _LP0 = lp0
-    }
-    return r
-}
-
 function _lp_extract_term(name) {
     if (name == "bcode") {
         return _lp_extract_bcode()
     } else if (name == "icode+") {
         return _lp_extract_icodep()
-    } else if (name == "bcode+") {
-        return _lp_extract_bcodep()
     } else {
         pat = _lp_terms[name]
         r = _lp_extract_pat(pat)
@@ -104,6 +92,7 @@ function _lp_extract_term(name) {
 function _lp_print(s) {
     if (s) {
         print s
+        #printf("%d '%s'\n", length(s), s)
         return 1
     } else {
         return 0
@@ -115,4 +104,6 @@ function _lp_print(s) {
 {
     _lp_print(_lp_extract_term("icode+"))
     _lp_print(_lp_extract_term("redir"))
+    _lp_print(_lp_extract_term("def"))
+    _lp_print(_lp_extract_term("bcode"))
 }
