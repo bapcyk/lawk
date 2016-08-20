@@ -1,7 +1,10 @@
 AWK := gawk
+MKDIR := mkdir
 
 
 .SUFFIXES: .md
 
 all:
-	@$(AWK) -f stream.awk example.md
+	-@$(MKDIR) build
+	-@$(MKDIR) build/.cache
+	@$(AWK) -f stream.awk example.md > build/.cache/stream
