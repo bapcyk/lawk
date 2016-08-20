@@ -7,7 +7,7 @@ BEGIN {
     _lp_terms["icode"] = "`[^`]+`"
 }
 
-function _lp_extract_pat(pat, prn) {
+function _lp_extract_pat(pat) {
     match(_LP0, pat)
     if (RSTART) {
         r = substr(_LP0, RSTART, RLENGTH)
@@ -17,12 +17,11 @@ function _lp_extract_pat(pat, prn) {
     } else {
         r = ""
     }
-    if (prn && r) print r
-    else return r
+    return r
 }
 
 # special case of term - block code
-function _lp_extract_bcode(prn) {
+function _lp_extract_bcode() {
     if (0 == _lp_bcodenl) {
         if (!$0) _lp_bcodenl = 1
     } else {
@@ -37,8 +36,7 @@ function _lp_extract_bcode(prn) {
         }
         if (indent >= _lp_bcodeindent || !$0) {
             r = "bcode " $0
-            if (prn) print r
-            else return r
+            return r
         } else if ($0) {
             _lp_bcodenl = 0
             return
@@ -48,7 +46,7 @@ function _lp_extract_bcode(prn) {
 }
 
 # special case - extract def and icode
-function _lp_extract_icodep_1(prn) {
+function _lp_extract_icodep_1() {
     lp0 = _LP0
     def = _lp_extract_term("def")
     code = _lp_extract_term("icode")
@@ -58,18 +56,16 @@ function _lp_extract_icodep_1(prn) {
         r = ""
         _LP0 = lp0
     }
-    if (prn && r) print r
-    else return r
+    return r
 }
 
 # special case - extract def and icode
-function _lp_extract_icodep(prn) {
+function _lp_extract_icodep() {
     rs = ""
     while (1) {
         r = _lp_extract_icodep_1()
         if (!r) {
-            if (prn) { print rs; return }
-            else return rs
+            return rs
         } else {
             rs = rs "\n" r
         }
@@ -77,7 +73,7 @@ function _lp_extract_icodep(prn) {
 }
 
 # special case - extract def and bcode
-function _lp_extract_bcodep(prn) {
+function _lp_extract_bcodep() {
     lp0 = _LP0
     def = _lp_extract_term("def")
     code = _lp_extract_term("bcode")
@@ -87,30 +83,36 @@ function _lp_extract_bcodep(prn) {
         r = ""
         _LP0 = lp0
     }
-    if (prn && r) print r
-    else return r
+    return r
 }
 
-function _lp_extract_term(name, prn) {
+function _lp_extract_term(name) {
     if (name == "bcode") {
-        return _lp_extract_bcode(prn)
+        return _lp_extract_bcode()
     } else if (name == "icode+") {
-        return _lp_extract_icodep(prn)
+        return _lp_extract_icodep()
     } else if (name == "bcode+") {
-        return _lp_extract_bcodep(prn)
+        return _lp_extract_bcodep()
     } else {
         pat = _lp_terms[name]
         r = _lp_extract_pat(pat)
         if (r) r = name " " r
-        if (prn && r) print r
-        else return r
+        return r
     }
 }
 
+function _lp_print(s) {
+    if (s) {
+        print s
+        return 1
+    } else {
+        return 0
+    }
+}
 
 { _LP0 = $0 }
 /\r/ { RS = "\r\n" }
 {
-    _lp_extract_term("icode+", 1)
-    _lp_extract_term("redir", 1)
+    _lp_print(_lp_extract_term("icode+"))
+    _lp_print(_lp_extract_term("redir"))
 }
