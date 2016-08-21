@@ -34,6 +34,7 @@ function _lp_parse_bcode(   arr0, arr1) {
             }
             print arr0[1] >> _LP_REDIRTO
             close(_LP_REDIRTO)
+            _LP_REDIRTO = ""
         }
     }
 }
@@ -43,6 +44,7 @@ function _lp_parse_icode(   arr) {
         if (_LP_REDIRTO) {
             print arr[1] >> _LP_REDIRTO
             close(_LP_REDIRTO)
+            _LP_REDIRTO = ""
         }
     }
 }
