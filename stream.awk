@@ -101,11 +101,35 @@ function _lp_print(s) {
 }
 
 
-{ _LP0 = $0 } # _LP0 are needed for multi-terms per line
-/\r/ { RS = "\r\n" }
-{
+function stream() {
     _lp_print(_lp_extract_term("icode+")) # eats all defs for icode
     _lp_print(_lp_extract_term("redir")) # XXX redir doesn't support several on one line!
     _lp_print(_lp_extract_term("defin")) # defs for bcode are lost only
     _lp_print(_lp_extract_term("bcode")) # XXX redir doesn't support inline definition block
+}
+
+function deps(   d) {
+    d = _lp_extract_term("redir")
+    if (d) {
+        d = substr(d, 1 + index(d, ">"))
+        _lp_deps = _lp_deps (_lp_deps? " ":"") d
+    }
+}
+
+{
+    _LP0 = $0 # _LP0 are needed for multi-terms per line
+}
+
+/\r/ { RS = "\r\n" }
+{
+    if (GENDEPS) {
+        deps()
+    }
+    else {
+        stream()
+    }
+}
+
+END {
+    if (GENDEPS) printf("%s: %s\n", _lp_deps, FILENAME);
 }

@@ -3,6 +3,8 @@ MKDIR := mkdir
 RM := rm
 CD := cd
 
+LPSRCS = example0.md example1.md
+
 
 .SUFFIXES: .md
 .PHONES: all clean
@@ -13,6 +15,10 @@ clean:
 build:
 	$(MKDIR) build
 	$(MKDIR) build/.cache
+
+define mk-deps
+	$(AWK) -v GENDEPS=1 -f stream.awk $<
+endef
 
 define mk-stream
 $(MKDIR) build/.cache/$<
@@ -25,8 +31,8 @@ $(AWK) -v 'BUILDDIR=build/.cache/$<' -f defs.awk build/.cache/$</stream
 endef
 
 # FIXME for several sources!!!
-tangle: example.md
+test: example0.md
 	$(mk-stream)
 	$(mk-defs)
 
-all: build tangle
+all: build test
