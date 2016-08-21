@@ -3,12 +3,13 @@ MKDIR := mkdir
 RM := rm
 CD := cd
 CP := cp
-
-LPSRCS = example0.md example1.md
+ECHO := echo
+MAKE := make
 
 
 .SUFFIXES: .md .deps
-.PHONES: all clean deps
+.PHONES: all deps clean
+LPMAKEFILE := .LpMakefile
 
 DEPS := $(patsubst %.md,%.deps,$(LPSRCS))
 
@@ -18,6 +19,7 @@ DEPS := $(patsubst %.md,%.deps,$(LPSRCS))
 clean:
 	-$(RM) -rf build/
 	-$(RM) -f *.deps
+	-$(RM) -f $(LPMAKEFILE)
 
 build:
 	$(MKDIR) build
@@ -41,9 +43,15 @@ $(DEPS): $(LPSRCS)
 
 deps: $(DEPS)
 
-# FIXME for several sources!!!
-test: example0.md
-	$(mk-stream)
-	$(mk-defs)
+define tangle
+$(mk-stream)
+$(mk-defs)
+endef
 
-all: build test
+all: deps build
+	$(ECHO) "LPTARGETS :=" > $(LPMAKEFILE)
+	$(ECHO) ".PHONES: tangle" > $(LPMAKEFILE)
+	$(ECHO) "include lp.mk" >> $(LPMAKEFILE)
+	$(ECHO) "include $(DEPS)" >> $(LPMAKEFILE)
+	$(ECHO) 'tangle: $$(LPTARGETS)' >> $(LPMAKEFILE)
+	$(MAKE) -f $(LPMAKEFILE) tangle

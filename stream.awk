@@ -108,11 +108,11 @@ function stream() {
     _lp_print(_lp_extract_term("bcode")) # XXX redir doesn't support inline definition block
 }
 
-function deps(   d) {
+function deps(   d, ext, arr) {
     d = _lp_extract_term("redir")
-    if (d) {
+    if (d && !_lp_deps) {
         d = substr(d, 1 + index(d, ">"))
-        _lp_deps = _lp_deps (_lp_deps? " \\\n\t":"") d
+        _lp_deps = d # only first redirect file
     }
 }
 
@@ -132,7 +132,9 @@ function deps(   d) {
 
 END {
     if (GENDEPS && _lp_deps) {
-        printf("%s_deps := \\\n\t%s\n", FILENAME, _lp_deps)
-        printf("$(%s_deps): %s\n", FILENAME, FILENAME)
+        printf("%s.deps := \\\n\t%s\n", FILENAME, _lp_deps)
+        printf("$(%s.deps): %s\n", FILENAME, FILENAME)
+        printf("\t$(tangle)\n", FILENAME, FILENAME)
+        printf("LPTARGETS += $(%s.deps)\n", FILENAME)
     }
 }
