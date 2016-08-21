@@ -1,3 +1,4 @@
+# .md is input
 BEGIN {
     _lp_prefix = "\\.\\."
     _lp_terminator = "[^ ,;:!?]"
@@ -91,7 +92,7 @@ function _lp_extract_term(name) {
 
 function _lp_print(s) {
     if (s) {
-        print s  # BUG there are 1 line with spaces only!!
+        print s  # FIXME there are 1 line with spaces only!!
         #printf("%d '%s'\n", length(s), s)
         return 1
     } else {
@@ -104,7 +105,7 @@ function _lp_print(s) {
 /\r/ { RS = "\r\n" }
 {
     _lp_print(_lp_extract_term("icode+")) # eats all defs for icode
-    _lp_print(_lp_extract_term("redir")) # BUG: redir doesn't support several on one line!
+    _lp_print(_lp_extract_term("redir")) # XXX redir doesn't support several on one line!
     _lp_print(_lp_extract_term("defin")) # defs for bcode are lost only
-    _lp_print(_lp_extract_term("bcode"))
+    _lp_print(_lp_extract_term("bcode")) # XXX redir doesn't support inline definition block
 }
