@@ -4,8 +4,8 @@
 function _lp_parse_redir(   arr, res) {
     if (match($0, /redir \.\.>(.*)/, arr)) {
         if (_lp_pathsplit(arr[1], res)) {
-            _LP_REDIRTO = BUILDDIR "/defs/" res[2]
-            printf("_LP_REDIR: %s\n\n", arr[1]) > _LP_REDIRTO
+            _LP_REDIRTO = BUILDDIR "/defs/" res[2] ".lp-redir"
+            printf("_LP_REDIR: %s\n", arr[1]) > _LP_REDIRTO
             close(_LP_REDIRTO)
         }
     }
@@ -14,7 +14,7 @@ function _lp_parse_redir(   arr, res) {
 function _lp_parse_defin(   arr, res, fname) {
     if (match($0, /defin \.\.:(.*)/, arr)) {
         if (_lp_pathsplit(arr[1], res)) {
-            _LP_REDIRTO = BUILDDIR "/defs/" res[2] ".lpdef" # XXX denied ext for tangled files
+            _LP_REDIRTO = BUILDDIR "/defs/" res[2] ".lp-defin"
             printf("", arr[1]) > _LP_REDIRTO
             close(_LP_REDIRTO)
         }
@@ -22,11 +22,18 @@ function _lp_parse_defin(   arr, res, fname) {
 }
 
 # FIXME remove leading indent
-function _lp_parse_bcode() {
-    if (match($0, /bcode (.*)/, arr)) {
-        #print "bcode ", arr[1], _LP_REDIRTO
+function _lp_parse_bcode(   arr0, arr1) {
+    if (match($0, /bcode (.*)/, arr0)) {
         if (_LP_REDIRTO) {
-            print arr[1] >> _LP_REDIRTO
+            if (!length(_lp_bcodeindent)) {
+                if (match(arr0[1], /([\t ]+)(.*)/, arr1)) {
+                    _lp_bcodeindent = arr1[1] " " # FIXME why I cant del space with 1st regex?
+                    arr0[1] = arr1[2]
+                }
+            } else {
+                arr0[1] = substr(arr0[1], length(_lp_bcodeindent))
+            }
+            print arr0[1] >> _LP_REDIRTO
             close(_LP_REDIRTO)
         }
     }
@@ -39,6 +46,7 @@ function _lp_join(sep, arr,   res) { # res is local var
     return res
 }
 
+# res is [dir, name, name-only, ext-with-dot]
 function _lp_pathsplit(path, res,   arr, dir, arrlen, name) {
     split(path, arr, "/")
     arrlen = length(arr)
@@ -52,6 +60,14 @@ function _lp_pathsplit(path, res,   arr, dir, arrlen, name) {
         }
         res[1] = dir
         res[2] = name
+        delete arr
+        if (match(name, /(.*)(\.[^.]*$)/, arr)) {
+            res[3] = arr[1]
+            res[4] = arr[2]
+        } else {
+            res[3] = name
+            res[4] = ""
+        }
         return 1
     } else {
         return 0
