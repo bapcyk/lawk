@@ -112,7 +112,7 @@ function deps(   d) {
     d = _lp_extract_term("redir")
     if (d) {
         d = substr(d, 1 + index(d, ">"))
-        _lp_deps = _lp_deps (_lp_deps? " ":"") d
+        _lp_deps = _lp_deps (_lp_deps? " \\\n\t":"") d
     }
 }
 
@@ -131,5 +131,8 @@ function deps(   d) {
 }
 
 END {
-    if (GENDEPS) printf("%s: %s\n", _lp_deps, FILENAME);
+    if (GENDEPS && _lp_deps) {
+        printf("%s_deps := \\\n\t%s\n", FILENAME, _lp_deps)
+        printf("$(%s_deps): %s\n", FILENAME, FILENAME)
+    }
 }
