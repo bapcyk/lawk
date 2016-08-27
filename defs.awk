@@ -4,7 +4,7 @@
 function _lp_parse_redir(   arr, res) {
     if (match($0, /redir \.\.>(.*)/, arr)) {
         if (_lp_pathsplit(arr[1], res)) {
-            _LP_REDIRTO = BUILDDIR "/defs/" res[2] ".lp-redir"
+            _LP_REDIRTO = BUILDDIR "/defs/" res[2] ".lpredir"
             printf("_LP_REDIR: %s\n", arr[1]) > _LP_REDIRTO
             close(_LP_REDIRTO)
         }
@@ -14,7 +14,7 @@ function _lp_parse_redir(   arr, res) {
 function _lp_parse_defin(   arr, res) {
     if (match($0, /defin \.\.:(.*)/, arr)) {
         if (_lp_pathsplit(arr[1], res)) {
-            _LP_REDIRTO = BUILDDIR "/defs/" res[2] ".lp-defin"
+            _LP_REDIRTO = BUILDDIR "/defs/" res[2] ".lpdefin"
             printf("", arr[1]) > _LP_REDIRTO
             close(_LP_REDIRTO)
         }

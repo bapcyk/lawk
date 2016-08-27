@@ -134,7 +134,7 @@ END {
     if (GENDEPS && _lp_deps) {
         printf("%s.deps := \\\n\t%s\n", FILENAME, _lp_deps)
         printf("$(%s.deps): %s\n", FILENAME, FILENAME)
-        printf("\t$(tangle)\n", FILENAME, FILENAME)
+        printf("\t$(pre-tangle)\n", FILENAME, FILENAME)
         printf("LPTARGETS += $(%s.deps)\n", FILENAME)
     }
 }
