@@ -4,7 +4,7 @@
 function _lp_parse_redir(   arr, res) {
     if (match($0, /redir \.\.>(.*)/, arr)) {
         if (_lp_pathsplit(arr[1], res)) {
-            _LP_REDIRTO = OUTDIR "/" res[2] ".rdef"
+            _LP_REDIRTO = OUTDIR "/" res[2] ".red"
             printf("_LP_REDIR: %s\n", arr[1]) > _LP_REDIRTO
             close(_LP_REDIRTO)
         }
