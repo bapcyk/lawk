@@ -29,8 +29,9 @@ mk-build-dir:
 	$(MKDIR) $(BUILDDIR)
 
 $(SRCNAMES):
-	$(MKDIR) $(BUILDDIR)/$(addsuffix .md,$@)
-	$(MKDIR) $(BUILDDIR)/$(addsuffix .md,$@)/def
-	$(AWK) -f$(LIBDIR)/tokens.awk $(addsuffix .md,$@) > $(BUILDDIR)/$(addsuffix .md,$@)/tokens
-	$(AWK) -vOUTDIR=$(BUILDDIR)/$(addsuffix .md,$@)/def \
-		-f $(LIBDIR)/defs.awk $(BUILDDIR)/$(addsuffix .md,$@)/tokens
+	$(eval MD:=$(addsuffix .md,$@))
+	$(MKDIR) $(BUILDDIR)/$(MD)
+	$(MKDIR) $(BUILDDIR)/$(MD)/def
+	$(AWK) -f$(LIBDIR)/tokens.awk $(MD) > $(BUILDDIR)/$(MD)/tokens
+	$(AWK) -vOUTDIR=$(BUILDDIR)/$(MD)/def \
+		-f $(LIBDIR)/defs.awk $(BUILDDIR)/$(MD)/tokens
