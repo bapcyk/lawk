@@ -101,7 +101,7 @@ function _lp_print(s) {
 }
 
 
-function stream() {
+function tokenize() {
     _lp_print(_lp_extract_term("icode+")) # eats all defs for icode
     _lp_print(_lp_extract_term("redir")) # XXX redir doesn't support several on one line!
     _lp_print(_lp_extract_term("defin")) # defs for bcode are lost only
@@ -122,19 +122,5 @@ function deps(   d, ext, arr) {
 
 /\r/ { RS = "\r\n" }
 {
-    if (GENDEPS) {
-        deps()
-    }
-    else {
-        stream()
-    }
-}
-
-END {
-    if (GENDEPS && _lp_deps) {
-        printf("%s.deps := \\\n\t%s\n", FILENAME, _lp_deps)
-        printf("$(%s.deps): %s\n", FILENAME, FILENAME)
-        printf("\t$(pre-tangle)\n", FILENAME, FILENAME)
-        printf("LPTARGETS += $(%s.deps)\n", FILENAME)
-    }
+    tokenize()
 }
