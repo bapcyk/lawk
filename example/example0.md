@@ -87,7 +87,7 @@ getter-ы ..:h-getters :
 
 Наша ф-ция ..:c-stkinit инициализации стека (выделения пространства под стек):
 
-    .._ h-stkroom {
+    .._h-stkroom {
         if (STKADR(stk)) {
             // if stack memory is allocated already, free it
             free(STKADR(stk));
@@ -107,4 +107,7 @@ getter-ы ..:h-getters :
 
     #include "stk.h"
 
-    .._c-stkinit
+    .._c-stkinit .._h-stkfree
+    # FIXME DEL NEXT!!!
+    # pre-last
+    .._h-stkroom

@@ -108,14 +108,6 @@ function tokenize() {
     _lp_print(_lp_extract_term("bcode")) # XXX redir doesn't support inline definition block
 }
 
-function deps(   d, ext, arr) {
-    d = _lp_extract_term("redir")
-    if (d && !_lp_deps) {
-        d = substr(d, 1 + index(d, ">"))
-        _lp_deps = d # only first redirect file
-    }
-}
-
 {
     _LP0 = $0 # _LP0 are needed for multi-terms per line
 }

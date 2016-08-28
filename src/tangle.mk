@@ -1,7 +1,7 @@
 # Commands
 #-------------------------------------------------------------------------------
 AWK := gawk
-MKDIR := mkdir
+MKDIR := mkdir -p
 RM := rm
 CD := cd
 CP := cp
@@ -48,11 +48,13 @@ rec-tangle-one: $(REDNAMES)
 
 $(REDNAMES):
 	$(eval RED:=$(addsuffix .red,$@))
-	$(AWK) -f$(LIBDIR)/tangle.awk $(RED)
+# MD is got from rec-tangle-one make call variable MD
+	$(AWK) -vINDIR=$(dir $(RED)) -vOUTDIR=$(BUILDDIR)/$(MD) -vMKDIR='$(MKDIR)' -f$(LIBDIR)/tangle.awk $(RED)
 
 ifdef TANGLEALL
 $(SRCNAMES):
-	$(MAKE) INDIR=$(addsuffix .md,$@) rec-tangle-one
+	$(eval MD:=$(addsuffix .md,$@))
+	$(MAKE) MD=$(MD) INDIR=$(addsuffix .md,$@) rec-tangle-one
 else
 $(SRCNAMES):
 	$(eval MD:=$(addsuffix .md,$@))
@@ -60,5 +62,5 @@ $(SRCNAMES):
 	$(MKDIR) $(BUILDDIR)/$(MD)/.def
 	$(AWK) -f$(LIBDIR)/tokens.awk $(MD) > $(BUILDDIR)/$(MD)/.tokens
 	$(AWK) -vOUTDIR=$(BUILDDIR)/$(MD)/.def \
-		-f $(LIBDIR)/defs.awk $(BUILDDIR)/$(MD)/.tokens
+		-f$(LIBDIR)/defs.awk $(BUILDDIR)/$(MD)/.tokens
 endif
