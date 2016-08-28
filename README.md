@@ -12,7 +12,8 @@ LAWK is the simple literate programming tool for personal usage (no
 collaboration features). For collaboration nanolp can be used (see
 https://github.com/bapcyk/nanolp).
 
-Input files are markdown, output - any one.
+Input files are markdown, output - any one. Generation of ctags (for VIM) are
+supported.
 
 ## How is it look?
 
@@ -42,12 +43,25 @@ of `SOMETHING`). See example in `example/` folder.
 Inline and block code thunks are in standard markdown format. Definition body is
 such thunk which follows the definition of `SOMETHING` (with `..:`).
 
+If you need to jump over definitions, you should generate ctags file (default
+name is `lp.ctags):
+
+    make ctags
+
+and then to jump to some tag:
+
+    vim -t sometag
+
+this was tested under Vim (but does not work yet for `less`); Emacs ETAGS is in
+plans.
+
 ## Testing
 
 Author tested this under Windows with cyrillic/ASCII .md files (see `example/`)
 with MinGW environment.
 
-All paths should not contains spaces and other shit symbols.
+All paths should not contains spaces and other special symbols. Tags was tested
+with Vim (tags file is unsorted).
 
 ## Requirement
 
