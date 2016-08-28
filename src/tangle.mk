@@ -17,17 +17,23 @@ LIBDIR ?= ../src
 
 # Files
 #-------------------------------------------------------------------------------
+# SRCNAMES - names of .md files (without ext - to force as nonexistent requisities,
+# other way is to add them into .PHONY)
 SRCNAMES := $(patsubst %.md,%,$(wildcard *.md))
+# REDNAMES - names of .red files (without ext - to force as nonexistent requisities,
+# other way is to add them into .PHONY); INDIR is external var where is def/
+REDNAMES := $(patsubst %.red,%,$(wildcard $(BUILDDIR)/$(INDIR)/.def/*.red))
 
 
 # Goals
+# rec- means recursive
 #-------------------------------------------------------------------------------
-.PHONY: all do-tangle clean mk-build-dir tangle
+.PHONY: all clean mk-build-dir tangle-all rec-tangle-all rec-tangle-one
 
 
-all: mk-build-dir $(SRCNAMES) tangle
+all: mk-build-dir $(SRCNAMES) tangle-all
 
-do-tangle: $(SRCNAMES)
+rec-tangle-all: $(SRCNAMES)
 
 clean:
 	$(RM) -rf $(BUILDDIR)
@@ -35,10 +41,19 @@ clean:
 mk-build-dir:
 	$(MKDIR) $(BUILDDIR)
 
-tangle: $(SRCNAMES)
-	$(MAKE) POST=1 do-tangle --no-print-directory
+tangle-all: $(SRCNAMES)
+	$(MAKE) TANGLEALL=1 rec-tangle-all --no-print-directory
 
-ifndef POST
+rec-tangle-one: $(REDNAMES)
+
+$(REDNAMES):
+	$(eval RED:=$(addsuffix .red,$@))
+	$(AWK) -f$(LIBDIR)/tangle.awk $(RED)
+
+ifdef TANGLEALL
+$(SRCNAMES):
+	$(MAKE) INDIR=$(addsuffix .md,$@) rec-tangle-one
+else
 $(SRCNAMES):
 	$(eval MD:=$(addsuffix .md,$@))
 	$(MKDIR) $(BUILDDIR)/$(MD)
@@ -46,9 +61,4 @@ $(SRCNAMES):
 	$(AWK) -f$(LIBDIR)/tokens.awk $(MD) > $(BUILDDIR)/$(MD)/.tokens
 	$(AWK) -vOUTDIR=$(BUILDDIR)/$(MD)/.def \
 		-f $(LIBDIR)/defs.awk $(BUILDDIR)/$(MD)/.tokens
-else
-$(SRCNAMES):
-	$(eval MD:=$(addsuffix .md,$@))
-	$(eval REDS:=$(wildcard build/$(MD)/.def/*.red))
-	@echo FOUND REDS FOR $@: $(REDS)
 endif
