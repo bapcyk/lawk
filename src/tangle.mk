@@ -2,14 +2,16 @@
 #-------------------------------------------------------------------------------
 AWK := gawk
 MKDIR := mkdir -p
-RM := rm
+RMDIR := rm -rf
 MAKE := make
+RM := rm
 
 
 # Paths and related
 #-------------------------------------------------------------------------------
-BUILDDIR := build
+BUILDDIR := .cache
 LIBDIR ?= ../src
+CTAGSFILE := lp.ctags
 
 
 # Files
@@ -25,15 +27,19 @@ REDNAMES := $(patsubst %.red,%,$(wildcard $(BUILDDIR)/$(INDIR)/.def/*.red))
 # Goals
 # rec- means recursive
 #-------------------------------------------------------------------------------
-.PHONY: all clean mk-build-dir tangle-all rec-tangle-all rec-tangle-one
+.PHONY: all clean mk-build-dir rm-build-dir tangle-all rec-tangle-all \
+			  rec-tangle-one ctags
 
 
 all: mk-build-dir $(SRCNAMES) tangle-all
 
 rec-tangle-all: $(SRCNAMES)
 
-clean:
-	$(RM) -rf $(BUILDDIR)
+clean: rm-build-dir
+	-$(RM) $(CTAGSFILE)
+
+rm-build-dir:
+	$(RMDIR) $(BUILDDIR)
 
 mk-build-dir:
 	$(MKDIR) $(BUILDDIR)
@@ -46,14 +52,14 @@ rec-tangle-one: $(REDNAMES)
 $(REDNAMES):
 	$(eval RED:=$(addsuffix .red,$@))
 # MD is available from rec-tangle-one make call variable MD (now is not used)
-	$(AWK) -vINDIR=$(dir $(RED)) -vOUTDIR=$(BUILDDIR) -vMKDIR='$(MKDIR)' \
+	$(AWK) -vINDIR=$(dir $(RED)) -vOUTDIR=$(BUILDDIR)/.. -vMKDIR='$(MKDIR)' \
 		-f$(LIBDIR)/lib.awk -f$(LIBDIR)/tangle.awk $(RED)
 
 ifdef TANGLEALL
 $(SRCNAMES):
 	$(eval MD:=$(addsuffix .md,$@))
 	$(MAKE) MD=$(MD) INDIR=$(addsuffix .md,$@) rec-tangle-one
-	$(RM) -rf $(BUILDDIR)/$(MD)
+#$(RMDIR) $(BUILDDIR)/$(MD) # do't remove for ctags
 else
 $(SRCNAMES):
 	$(eval MD:=$(addsuffix .md,$@))
@@ -61,5 +67,9 @@ $(SRCNAMES):
 	$(MKDIR) $(BUILDDIR)/$(MD)/.def
 	$(AWK) -f$(LIBDIR)/tokens.awk $(MD) > $(BUILDDIR)/$(MD)/.tokens
 	$(AWK) -vOUTDIR=$(BUILDDIR)/$(MD)/.def -f$(LIBDIR)/lib.awk	\
-	-f$(LIBDIR)/defs.awk $(BUILDDIR)/$(MD)/.tokens
+		-f$(LIBDIR)/defs.awk $(BUILDDIR)/$(MD)/.tokens
 endif
+
+ctags:
+	$(eval TAGGED:=$(addsuffix .md,$(SRCNAMES)))
+	@$(AWK) -f$(LIBDIR)/tags.awk $(TAGGED) > $(CTAGSFILE)
