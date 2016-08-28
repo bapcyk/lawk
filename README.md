@@ -33,7 +33,7 @@ which will produce all output files (.c, .h, .py, any!)
 Markdown files must have `.md` extension and to contain LAWK instructions:
 
 * ..:SOMETHING - to define some code (inline or block)
-* .._:SOMETHING - to paste here early defined code
+* .._SOMETHING - to paste here early defined code
 * ..>FILE - the same as `..:` but save its content to file `FILE`
 
 where `SOMETHING` is string without symbols: `, ;:!?` (they are treated as end
