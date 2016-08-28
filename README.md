@@ -36,7 +36,7 @@ Markdown files must have `.md` extension and to contain LAWK instructions:
 * .._:SOMETHING - to paste here early defined code
 * ..>FILE - the same as `..:` but save its content to file `FILE`
 
-where `SOMETHING` is string without symbols: ` ,;:!?` (they are treated as end
+where `SOMETHING` is string without symbols: `, ;:!?` (they are treated as end
 of `SOMETHING`). See example in `example/` folder.
 
 Inline and block code thunks are in standard markdown format. Definition body is
