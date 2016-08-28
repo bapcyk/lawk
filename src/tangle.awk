@@ -21,7 +21,7 @@ function _lp_subst(   re, defname, defpath, arr, buf) {
             sub(/[\r\n]+$/, "", buf)
             gsub("\\.\\._" defname, buf)
         }
-        REPLBUF = REPLBUF "\n" $0
+        REPLBUF = REPLBUF (!REPLBUF?"":"\n") $0
     }
 }
 
@@ -70,7 +70,6 @@ END {
         print "*** .red file without target file name!"
         exit 1
     }
-    #print "!!!! TRY TO CREATE DIR: " MKDIR " " REDIRTO
     _lp_pathsplit(REDIRTO, res)
     system(MKDIR " " res[1])
     print REPLBUF > REDIRTO
