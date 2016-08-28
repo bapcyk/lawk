@@ -6,7 +6,7 @@ Literate programming is an approach to programming introduced by Donald Knuth in
 which a program is given as an explanation of the program logic in a natural
 language, such as English, interspersed with snippets of macros and traditional
 source code, from which a compilable source code can be generated (see
-literateprogramming.com).
+http://literateprogramming.com).
 
 LAWK is the simple literate programming tool for personal usage (no
 collaboration features). For collaboration nanolp can be used (see
