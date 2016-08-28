@@ -3,9 +3,6 @@
 AWK := gawk
 MKDIR := mkdir -p
 RM := rm
-CD := cd
-CP := cp
-ECHO := echo
 MAKE := make
 
 
@@ -62,6 +59,6 @@ $(SRCNAMES):
 	$(MKDIR) $(BUILDDIR)/$(MD)
 	$(MKDIR) $(BUILDDIR)/$(MD)/.def
 	$(AWK) -f$(LIBDIR)/tokens.awk $(MD) > $(BUILDDIR)/$(MD)/.tokens
-	$(AWK) -vOUTDIR=$(BUILDDIR)/$(MD)/.def \
-		-f$(LIBDIR)/lib.awk -f$(LIBDIR)/defs.awk $(BUILDDIR)/$(MD)/.tokens
+	$(AWK) -vOUTDIR=$(BUILDDIR)/$(MD)/.def -f$(LIBDIR)/lib.awk	\
+	-f$(LIBDIR)/defs.awk $(BUILDDIR)/$(MD)/.tokens
 endif
