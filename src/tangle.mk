@@ -45,14 +45,15 @@ rec-tangle-one: $(REDNAMES)
 
 $(REDNAMES):
 	$(eval RED:=$(addsuffix .red,$@))
-# MD is got from rec-tangle-one make call variable MD
-	$(AWK) -vINDIR=$(dir $(RED)) -vOUTDIR=$(BUILDDIR)/$(MD) -vMKDIR='$(MKDIR)' \
+# MD is available from rec-tangle-one make call variable MD (now is not used)
+	$(AWK) -vINDIR=$(dir $(RED)) -vOUTDIR=$(BUILDDIR) -vMKDIR='$(MKDIR)' \
 		-f$(LIBDIR)/lib.awk -f$(LIBDIR)/tangle.awk $(RED)
 
 ifdef TANGLEALL
 $(SRCNAMES):
 	$(eval MD:=$(addsuffix .md,$@))
 	$(MAKE) MD=$(MD) INDIR=$(addsuffix .md,$@) rec-tangle-one
+	$(RM) -rf $(BUILDDIR)/$(MD)
 else
 $(SRCNAMES):
 	$(eval MD:=$(addsuffix .md,$@))

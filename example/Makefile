@@ -1,2 +1,3 @@
+# LIBDIR variable is used by tangle.mk
 LIBDIR = ../src
-include ../src/tangle.mk
+include $(LIBDIR)/tangle.mk
