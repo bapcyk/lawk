@@ -9,16 +9,20 @@ function _lp_cat(fpath,   buf, line) {
 }
 
 function _lp_subst(   re, defname, defpath, arr, buf) {
-    while (match($0,  "\\.\\._([^ ,;:!?]+)", arr)) {
-        # if find - replace, so subst all (recursively)
-        defname = arr[1]
-        defpath = INDIR "/" defname ".def"
-        buf = _lp_cat(defpath)
-        sub(/^[\r\n]+/, "", buf)
-        sub(/[\r\n]+$/, "", buf)
-        gsub("\\.\\._" defname, buf)
+    if ($0 ~ /_LP_REDIR:/) {
+        REDIRTO = OUTDIR "/" $2
+    } else {
+        while (match($0,  "\\.\\._([^ ,;:!?]+)", arr)) {
+            # if find - replace, so subst all (recursively)
+            defname = arr[1]
+            defpath = INDIR "/" defname ".def"
+            buf = _lp_cat(defpath)
+            sub(/^[\r\n]+/, "", buf)
+            sub(/[\r\n]+$/, "", buf)
+            gsub("\\.\\._" defname, buf)
+        }
+        REPLBUF = REPLBUF "\n" $0
     }
-    REPLBUF = REPLBUF "\n" $0
 }
 
 function _lp_join(sep, arr,   res) { # res is local var
@@ -72,9 +76,6 @@ END {
     print REPLBUF > REDIRTO
 }
 
-/_LP_REDIR:/ {
-    REDIRTO = OUTDIR "/" $2
-}
 {
     _lp_subst()
 }
