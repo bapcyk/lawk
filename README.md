@@ -44,7 +44,7 @@ Inline and block code thunks are in standard markdown format. Definition body is
 such thunk which follows the definition of `SOMETHING` (with `..:`).
 
 If you need to jump over definitions, you should generate ctags file (default
-name is `lp.ctags):
+name is `lp.ctags`):
 
     make ctags
 

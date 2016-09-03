@@ -1,7 +1,7 @@
 # .md is input
 BEGIN {
     _lp_prefix = "\\.\\."
-    _lp_terminator = "[^ ,;:!?\r\n]"
+    _lp_terminator = "[a-zA-Z0-9.\\-]"
     _lp_terms["redir"] = _lp_prefix ">" _lp_terminator "+"
     _lp_terms["subst"] = _lp_prefix "_" _lp_terminator "+"
     _lp_terms["defin"] = _lp_prefix ":" _lp_terminator "+"
