@@ -5,6 +5,7 @@ MKDIR := mkdir -p
 RMDIR := rm -rf
 MAKE := make
 RM := rm
+PANDOC := pandoc
 
 
 # Paths and related
@@ -22,16 +23,24 @@ SRCNAMES := $(patsubst %.md,%,$(wildcard *.md))
 # REDNAMES - names of .red files (without ext - to force as nonexistent requisities,
 # other way is to add them into .PHONY); INDIR is external var where is def/
 REDNAMES := $(patsubst %.red,%,$(wildcard $(BUILDDIR)/$(INDIR)/.def/*.red))
+# HTML files
+HTMLS := $(addsuffix .html,$(SRCNAMES))
+
+
+.SUFFIXES: .md .html
+
+.md.html:
+	$(PANDOC) -s $< -o $@
 
 
 # Goals
 # rec- means recursive
 #-------------------------------------------------------------------------------
 .PHONY: all clean mk-build-dir rm-build-dir tangle-all rec-tangle-all \
-			  rec-tangle-one ctags
+		rec-tangle-one ctags weave
 
 
-all: mk-build-dir $(SRCNAMES) tangle-all
+all: mk-build-dir $(SRCNAMES) tangle-all weave
 
 rec-tangle-all: $(SRCNAMES)
 
@@ -73,3 +82,6 @@ endif
 ctags:
 	$(eval TAGGED:=$(addsuffix .md,$(SRCNAMES)))
 	@$(AWK) -f$(LIBDIR)/tags.awk $(TAGGED) > $(CTAGSFILE)
+
+weave: $(HTMLS)
+
