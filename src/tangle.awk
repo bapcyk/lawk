@@ -14,10 +14,12 @@ function _lp_subst(   defname, defpath, arr, buf) {
     } else {
         while (match($0, subst_pt, arr)) {
             # if find - replace, so subst all (recursively)
-            #print "BUF =", buf, arr[1], subst_pt, "!"
             defname = arr[1]
             defpath = INDIR "/" defname ".def"
             buf = _lp_cat(defpath)
+            # escape special chars \ and & (FIXME seems that \ is not needed)
+            #gsub(/\\/, "\\\\", buf)
+            gsub(/&/, "\\\\&", buf)
             sub(/^[\r\n]+/, "", buf)
             sub(/[\r\n]+$/, "", buf)
             gsub("\\.\\._" defname, buf)
