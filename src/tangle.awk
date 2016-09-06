@@ -12,8 +12,9 @@ function _lp_subst(   defname, defpath, arr, buf) {
     if ($0 ~ /_LP_REDIR:/) {
         REDIRTO = OUTDIR "/" $2
     } else {
-        while (match($0,  "\\.\\._([a-zA-Z0-9.\\-\\/]+)", arr)) {
+        while (match($0, subst_pt, arr)) {
             # if find - replace, so subst all (recursively)
+            #print "BUF =", buf, arr[1], subst_pt, "!"
             defname = arr[1]
             defpath = INDIR "/" defname ".def"
             buf = _lp_cat(defpath)

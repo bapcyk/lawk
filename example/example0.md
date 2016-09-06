@@ -75,10 +75,10 @@ getter-ы ..:h-getters :
 
     .._h-stkstr
 
-	.._h-getters
-	.._h-stkinit
-	.._h-stkfree
-	.._h-aloc
+    .._h-getters
+    .._h-stkinit
+    .._h-stkfree
+    .._h-aloc
     .._h-stkroom;
 
 

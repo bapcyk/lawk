@@ -1,5 +1,5 @@
 function _lp_tags(   cmd, tagname, arr) {
-    while (match($0,  "\\.\\.([:>])([a-zA-Z0-9.\\-\\/]+)", arr)) {
+    while (match($0,  pre_pt "([:>])" word_pt, arr)) {
         cmd = arr[1]
         tagname = arr[2]
         printf("%s\t%s\t/%s/;\"\t%s\n", tagname, FILENAME, "\\.\\." cmd tagname, "v")

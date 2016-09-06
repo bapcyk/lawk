@@ -1,3 +1,12 @@
+BEGIN {
+    pre_pt   = "\\.\\."
+    word_pt  = "([a-zA-Z0-9.\\-\\/]+)"
+    redir_pt = pre_pt ">" word_pt
+    subst_pt = pre_pt "_" word_pt
+    defin_pt = pre_pt ":" word_pt
+    icode_pt = "`[^`]+`"
+}
+
 function _lp_join(sep, arr,   res) { # res is local var
     for (i=1; i<=length(arr); i++) {
         res = res (i!=1?sep:"") arr[i]

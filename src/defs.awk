@@ -21,20 +21,14 @@ function _lp_parse_defin(   arr, res) {
     }
 }
 
-function _lp_parse_bcode(   arr0, arr1) {
-    if (match($0, /bcode (.*)/, arr0)) {
+function _lp_parse_bcode(   arr) {
+    if (match($0, /bcode (.*)/, arr)) {
         if (_LP_REDIRTO) {
-            if (!length(_lp_bcodeindent)) {
-                if (match(arr0[1], /([\t ]+)(.*)/, arr1)) {
-                    _lp_bcodeindent = arr1[1] " " # FIXME why I cant del space with 1st regex?
-                    arr0[1] = arr1[2]
-                }
-            } else {
-                arr0[1] = substr(arr0[1], length(_lp_bcodeindent))
-            }
-            print arr0[1] >> _LP_REDIRTO
-            close(_LP_REDIRTO)
+            print arr[1] >> _LP_REDIRTO
         }
+    } else if ($0 == "ecode") {
+        close(_LP_REDIRTO)
+        _LP_REDIRTO = ""
     }
 }
 

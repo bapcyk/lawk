@@ -1,118 +1,46 @@
-# .md is input
-BEGIN {
-    _lp_prefix = "\\.\\."
-    _lp_terminator = "[a-zA-Z0-9.\\-\\/]"
-    _lp_terms["redir"] = _lp_prefix ">" _lp_terminator "+"
-    _lp_terms["subst"] = _lp_prefix "_" _lp_terminator "+"
-    _lp_terms["defin"] = _lp_prefix ":" _lp_terminator "+"
-    _lp_terms["icode"] = "`[^`]+`"
-}
-
-function _lp_extract_pat(pat) {
-    match(_LP0, pat)
-    if (RSTART) {
-        r = substr(_LP0, RSTART, RLENGTH)
-        _LP0 = gensub("(" pat ")", "", 1, _LP0)
-        #print pat, "0::", x
-        #print pat, "1::", _LP0
-    } else {
-        r = ""
-    }
-    return r
-}
-
-# special case of term - block code
-function _lp_extract_bcode() {
-    #print " ..", _LP0, _lp_bcodenl
-    if (0 == _lp_bcodenl) {
-        if (!$0) _lp_bcodenl = 1
-    } else {
-        indent = _lp_extract_pat("^[ \t]+")
-        if (1 == _lp_bcodenl) {
-            if (indent) {
-                _lp_bcodeindent = indent
-            } else {
-            #print " .. kill-1", $0, _lp_bcodenl
-                _lp_bcodenl = 0
-                return
-            }
-        }
-        if (indent >= _lp_bcodeindent || !$0) {
-            r = "bcode " $0
-            _lp_bcodenl++ # line number in bcode
-            return r
-        } else if ($0) {
-            #print " .. ", $0, "kill-2", _lp_bcodenl
-            #printf(" .. kill-2 %s '%s'->'%s' %d\n", $0, _lp_bcodeindent, indent, _lp_bcodenl)
-            _lp_bcodenl = 0
-            return
-        }
-    }
-}
-
-# special case - extract def and icode
-function _lp_extract_icodep_1() {
-    lp0 = _LP0
-    def = _lp_extract_term("defin")
-    code = _lp_extract_term("icode")
-    if (def && code) {
-        r = def "\n" code
-    } else {
-        r = ""
-        _LP0 = lp0
-    }
-    return r
-}
-
-# special case - extract def and icode
-function _lp_extract_icodep() {
-    rs = ""
-    while (1) {
-        r = _lp_extract_icodep_1()
-        if (!r) {
-            return rs
+function _lp_parse_bcode(eof,  ind) {
+    match($0, "^[ \t]+"); ind = substr($0, RSTART, RLENGTH)
+    match($0, /[^ \t\r]/); _lp_emptyline = (RLENGTH == -1)
+    ind = _lp_emptyline? 0:length(ind) + 1
+    #print "_lp_inbcode:", _lp_inbcode, "ind:", ind, "_lp_indent:", _lp_indent, substr($0, 0, 60)
+    if (_lp_inbcode) {
+        if (eof || 1==ind) {
+            _lp_inbcode = 0
+            print "ecode"
         } else {
-            rs = rs "\n" r
+            print "bcode", substr($0, _lp_indentln0)
+        }
+    } else {
+        if (0==_lp_indent && ind>1) {
+            _lp_inbcode = 1
+            _lp_indentln0 = ind
+            print "bcode", substr($0, _lp_indentln0)
         }
     }
+    _lp_indent = ind
+    return _lp_inbcode
 }
 
-function _lp_extract_term(name) {
-    if (name == "bcode") {
-        return _lp_extract_bcode()
-    } else if (name == "icode+") {
-        return _lp_extract_icodep()
-    } else {
-        pat = _lp_terms[name]
-        r = _lp_extract_pat(pat)
-        if (r) r = name " " r
-        return r
+function _lp_parse() {
+    if (!_lp_parse_bcode()) {
+        while ($0) {
+            if (match($0, "^" redir_pt)) print "redir", substr($0, RSTART, RLENGTH)
+            else if (match($0, "^" subst_pt)) print "icode", substr($0, RSTART, RLENGTH)
+            else if (match($0, "^" defin_pt)) print "defin", substr($0, RSTART, RLENGTH)
+            else if (match($0, "^" icode_pt)) print "icode", substr($0, RSTART, RLENGTH)
+            $0 = substr($0, 2)
+        }
     }
-}
-
-function _lp_print(s) {
-    if (s) {
-        print s  # FIXME there are 1 line with spaces only!!
-        #printf("%d '%s'\n", length(s), s)
-        return 1
-    } else {
-        return 0
-    }
-}
-
-
-function tokenize() {
-    _lp_print(_lp_extract_term("icode+")) # eats all defs for icode
-    _lp_print(_lp_extract_term("redir")) # XXX redir doesn't support several on one line!
-    _lp_print(_lp_extract_term("defin")) # defs for bcode are lost only
-    _lp_print(_lp_extract_term("bcode")) # XXX redir doesn't support inline definition block
-}
-
-{
-    _LP0 = $0 # _LP0 are needed for multi-terms per line
 }
 
 /\r/ { RS = "\r\n" }
 {
-    tokenize()
+    _lp_parse()
+}
+
+BEGIN {
+    _lp_indent = -1
+}
+END {
+    _lp_parse_bcode(1)
 }

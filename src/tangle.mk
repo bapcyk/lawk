@@ -74,14 +74,16 @@ $(SRCNAMES):
 	$(eval MD:=$(addsuffix .md,$@))
 	$(MKDIR) $(BUILDDIR)/$(MD)
 	$(MKDIR) $(BUILDDIR)/$(MD)/.def
-	$(AWK) -f$(LIBDIR)/tokens.awk $(MD) > $(BUILDDIR)/$(MD)/.tokens
+	$(AWK) -f$(LIBDIR)/lib.awk -f$(LIBDIR)/tokens.awk $(MD) > $(BUILDDIR)/$(MD)/.tokens
 	$(AWK) -vOUTDIR=$(BUILDDIR)/$(MD)/.def -f$(LIBDIR)/lib.awk	\
 		-f$(LIBDIR)/defs.awk $(BUILDDIR)/$(MD)/.tokens
 endif
 
 ctags:
 	$(eval TAGGED:=$(addsuffix .md,$(SRCNAMES)))
-	@$(AWK) -f$(LIBDIR)/tags.awk $(TAGGED) > $(CTAGSFILE)
+	@$(AWK) -f$(LIBDIR)/lib.awk -f$(LIBDIR)/tags.awk $(TAGGED) > $(CTAGSFILE)
 
 weave: $(HTMLS)
 
+x:
+	@$(AWK) -f$(LIBDIR)/lib.awk -f$(LIBDIR)/parse.awk cons.md
